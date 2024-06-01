@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import simpledialog
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -9,21 +8,35 @@ from reportlab.lib.pagesizes import LETTER
 qa_list = []
 
 def add_qa_fields():
+  # 새로운 질문과 답변 입력란을 담을 프레임 생성
+  frame = tk.Frame(input_frame)
+  frame.pack(pady=10)
+  qa_frames.append(frame)  # 프레임 리스트에 추가
+  
   # 새로운 질문과 답변 입력란 생성
-  tk.Label(input_frame, text=f"질문{len(questions_vars)+1}").pack(pady=(10,0))
-  q_text = tk.Text(input_frame, height=2, width=40)
+  tk.Label(frame, text=f"질문{len(questions_vars)+1}").pack(pady=(10,0))
+  q_text = tk.Text(frame, height=2, width=40)
   q_text.pack()
   questions_vars.append(q_text)
   
-  tk.Label(input_frame, text=f"답변{len(answers_vars)+1}").pack(pady=(10,0))
-  a_text = tk.Text(input_frame, height=5, width=40)
+  tk.Label(frame, text=f"답변{len(answers_vars)+1}").pack(pady=(10,0))
+  a_text = tk.Text(frame, height=5, width=40)
   a_text.pack()
   answers_vars.append(a_text)
+
+def delete_qa_fields():
+  if qa_frames:
+    # 가장 마지막에 추가된 질문과 답변의 프레임 삭제
+    frame_to_delete = qa_frames.pop()
+    frame_to_delete.destroy()
+    # 마지막 질문과 답변 삭제
+    questions_vars.pop()
+    answers_vars.pop()
 
 
 def save_info():
   info = {
-      "name": name_var.get(),
+    "name": name_var.get(),
   }
   # 질문과 답변을 딕셔너리에 추가
   for i, (q_text, a_text) in enumerate(zip(questions_vars, answers_vars), 1):
@@ -58,6 +71,7 @@ root.title("자기소개서 제작기")
 name_var = tk.StringVar()
 questions_vars = []
 answers_vars = []
+qa_frames = []  # 질문과 답변 세트를 담을 프레임을 저장할 리스트
 
 # 이름 입력란
 top_frame = tk.Frame(root)
@@ -71,11 +85,13 @@ input_frame.pack()
 
 # 처음 3개의 질문과 답변 입력란
 for _ in range(3):
-    add_qa_fields()
+  add_qa_fields()
 
-# 질문 추가 버튼
 add_qa_button = tk.Button(root, text="질문 추가", command=add_qa_fields)
 add_qa_button.pack()
+
+delete_qa_button = tk.Button(root, text="질문 삭제", command=delete_qa_fields)
+delete_qa_button.pack()
 
 save_button = tk.Button(root, text="정보 저장", command=save_info)
 save_button.pack()
