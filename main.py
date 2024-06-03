@@ -44,24 +44,60 @@ def save_info():
     answer = a_text.get("1.0", "end-1c")  # 텍스트 위젯에서 텍스트 가져오기
     info[f"q{i}"] = question
     info[f"a{i}"] = answer
+  
+  
+  interval = 55   # 줄바꿈 추가 간격
+  for key, value in info.items():
+    info[key] = add_newlines(value, interval)
+
   print(info)
   save_to_pdf(info)
 
+# info 줄바꿈 구현
+def add_newlines(s, interval):
+  """주어진 문자열에 특정 간격마다 줄바꿈을 추가합니다."""
+  return '\n'.join(s[i:i+interval] for i in range(0, len(s), interval))
+
 def save_to_pdf(info):
   pdfmetrics.registerFont(TTFont("MalgunGothic", "malgun.ttf"))
+
   name = info["name"]
+  title = name+"의 자기소개서"
   c = canvas.Canvas(f"{name}_자기소개서.pdf", pagesize=LETTER)
+
+  title_width = c.stringWidth(title, "MalgunGothic", 16)
   width, height = LETTER
+
   c.setFont("MalgunGothic", 16)
-  c.drawString(100, 800, f"{name}의 자기소개서")
-  y = 780
+  c.drawString((width//2) - (title_width//2), 750, title)
+  c.setLineWidth(0.3)
+  c.line(30, 730, 580, 730)
+  c.line(30, 733, 580, 733)
+  c.setFont("MalgunGothic", 11)
+
+  y = 700
   for i in range(1, (len(info) - 1) // 2 + 1):
     q = info[f"q{i}"]
     a = info[f"a{i}"]
-    c.drawString(100, y, f"질문: {q}")
+    # 질문 출력
+    lines = q.split('\n')
+    c.drawString(60, y, f"질문")
     y -= 20
-    c.drawString(100, y, f"답변: {a}")
-    y -= 30
+    for line in lines:
+      c.drawString(60, y, f"{line}")
+      y -= 20
+
+    # 답변 출력
+    lines = a.split('\n')
+    c.drawString(60, y, f"답변")
+    y -= 20
+    for line in lines:
+      c.drawString(60, y, f"{line}")
+      y -= 20
+
+    # 각 질문과 답변 사이에 추가 공간 추가
+    y -= 10
+
   c.save()
 
 # GUI 설정
