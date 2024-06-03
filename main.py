@@ -7,6 +7,15 @@ from reportlab.lib.pagesizes import LETTER
 # 질문과 답변을 저장할 리스트
 qa_list = []
 
+# 글자 수 제한
+QUESTION_CHAR_LIMIT = 55
+ANSWER_CHAR_LIMIT = 300
+
+def check_char_limit(event, text_widget, limit):
+  content = text_widget.get("1.0", "end-1c")
+  if len(content) > limit:
+    text_widget.delete(f"1.{limit}", "end")
+
 def add_qa_fields():
   # 새로운 질문과 답변 입력란을 담을 프레임 생성
   frame = tk.Frame(input_frame)
@@ -14,14 +23,16 @@ def add_qa_fields():
   qa_frames.append(frame)  # 프레임 리스트에 추가
   
   # 새로운 질문과 답변 입력란 생성
-  tk.Label(frame, text=f"질문{len(questions_vars)+1}").pack(pady=(10,0))
+  tk.Label(frame, text=f"질문{len(questions_vars)+1} (최대 55자)").pack(pady=(10,0))
   q_text = tk.Text(frame, height=2, width=40)
   q_text.pack()
+  q_text.bind("<KeyRelease>", lambda event: check_char_limit(event, q_text, QUESTION_CHAR_LIMIT))
   questions_vars.append(q_text)
   
-  tk.Label(frame, text=f"답변{len(answers_vars)+1}").pack(pady=(10,0))
+  tk.Label(frame, text=f"답변{len(answers_vars)+1} (최대 300자)").pack(pady=(10,0))
   a_text = tk.Text(frame, height=5, width=40)
   a_text.pack()
+  a_text.bind("<KeyRelease>", lambda event: check_char_limit(event, a_text, ANSWER_CHAR_LIMIT))
   answers_vars.append(a_text)
 
 def delete_qa_fields():
@@ -102,7 +113,7 @@ def save_to_pdf(info):
 
     # 각 질문과 답변 사이에 추가 공간 추가
     c.setLineWidth(1)
-    c.line(40, y+16, 570, y+16)
+    c.line(40, y+13, 570, y+13)
     y -= 10
 
   c.save()
