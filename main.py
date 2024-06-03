@@ -3,6 +3,21 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.pagesizes import LETTER
+from openai import OpenAI
+
+# OpenAI API 키 설정
+client = OpenAI(api_key = '')
+
+# 프롬프트 생성 함수
+def create_prompt(question, answer):
+  response = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+      {"role": "system", "content": "너는 훌륭한 조수야. 다른 말은 하지말고 아래의 답변 형식에 맞게 답변만 작성해줘"},
+      {"role": "user", "content": f"회사 서류 자기소개서를 작성 중이야. '{question}'라는 항목의 질문에 대해 '{answer}'이라는 답을 적어봤는데 '{answer}'만 내용과 맞춤법을 다듬어서 똑같은 형식으로 다른 말하지 않고 출력해줘."}
+    ]
+  )
+  return response.choices[0].message.content
 
 # 질문과 답변을 저장할 리스트
 qa_list = []
@@ -54,9 +69,9 @@ def save_info():
     question = q_text.get("1.0", "end-1c")  # 텍스트 위젯에서 텍스트 가져오기
     answer = a_text.get("1.0", "end-1c")  # 텍스트 위젯에서 텍스트 가져오기
     info[f"q{i}"] = question
-    info[f"a{i}"] = answer
-  
-  
+    # info[f"a{i}"] = create_prompt(question, answer) # gpt 학습
+    info[f"q{i}"] = answer
+
   interval = 57   # 줄바꿈 추가 간격
   for key, value in info.items():
     info[key] = add_newlines(value, interval)
