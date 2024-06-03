@@ -46,7 +46,7 @@ def save_info():
     info[f"a{i}"] = answer
   
   
-  interval = 55   # 줄바꿈 추가 간격
+  interval = 57   # 줄바꿈 추가 간격
   for key, value in info.items():
     info[key] = add_newlines(value, interval)
 
@@ -60,6 +60,7 @@ def add_newlines(s, interval):
 
 def save_to_pdf(info):
   pdfmetrics.registerFont(TTFont("MalgunGothic", "malgun.ttf"))
+  pdfmetrics.registerFont(TTFont("MalgunGothic-Bold", "malgunbd.ttf"))
 
   name = info["name"]
   title = name+"의 자기소개서"
@@ -81,21 +82,27 @@ def save_to_pdf(info):
     a = info[f"a{i}"]
     # 질문 출력
     lines = q.split('\n')
-    c.drawString(60, y, f"질문")
+    c.setFont("MalgunGothic-Bold", 12)
+    c.drawString(40, y, f"질문")
     y -= 20
     for line in lines:
-      c.drawString(60, y, f"{line}")
+      c.setFont("MalgunGothic", 11)
+      c.drawString(40, y, f"{line}")
       y -= 20
 
     # 답변 출력
     lines = a.split('\n')
-    c.drawString(60, y, f"답변")
+    c.setFont("MalgunGothic-Bold", 12)
+    c.drawString(40, y, f"답변")
     y -= 20
     for line in lines:
-      c.drawString(60, y, f"{line}")
+      c.setFont("MalgunGothic", 11)
+      c.drawString(40, y, f"{line}")
       y -= 20
 
     # 각 질문과 답변 사이에 추가 공간 추가
+    c.setLineWidth(1)
+    c.line(40, y+16, 570, y+16)
     y -= 10
 
   c.save()
