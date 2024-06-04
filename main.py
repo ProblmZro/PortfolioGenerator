@@ -1,9 +1,11 @@
 import tkinter as tk
+from tkinter import messagebox
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.pagesizes import LETTER
 from openai import OpenAI
+from datetime import datetime
 
 # OpenAI API 키 설정
 client = OpenAI(api_key = '')
@@ -70,14 +72,16 @@ def save_info():
     answer = a_text.get("1.0", "end-1c")  # 텍스트 위젯에서 텍스트 가져오기
     info[f"q{i}"] = question
     # info[f"a{i}"] = create_prompt(question, answer) # gpt 학습
-    info[f"q{i}"] = answer
+    info[f"a{i}"] = answer
 
   interval = 57   # 줄바꿈 추가 간격
   for key, value in info.items():
     info[key] = add_newlines(value, interval)
 
-  print(info)
+  # print(info)
   save_to_pdf(info)
+
+  messagebox.showinfo("저장 성공", "자기소개서가 성공적으로 저장되었습니다.")
 
 # info 줄바꿈 구현
 def add_newlines(s, interval):
@@ -127,9 +131,14 @@ def save_to_pdf(info):
       y -= 20
 
     # 각 질문과 답변 사이에 추가 공간 추가
-    c.setLineWidth(1)
-    c.line(40, y+13, 570, y+13)
-    y -= 10
+    if i != (len(info) - 1) // 2 :
+      c.setLineWidth(0.3)
+      c.line(40, y+11, 570, y+11)
+      y -= 10
+
+  today = datetime.today()
+  c.drawString(340, y-30, f"위 기재 사항은 사실과 틀림없음을 확인합니다.")
+  c.drawString(340, y-55, f"{today.year}년   {today.month}월   {today.day}일    지원자 :  {name}   (서명)")
 
   c.save()
 
